@@ -232,15 +232,8 @@ html.splash-on .hero { --base: 1.9s; }
 .story { padding: clamp(72px, 10vw, 130px) 20px; max-width: 1220px; margin-inline: auto; }
 .story-head { max-width: 760px; margin-bottom: 40px; } .story-head p { margin-top: 14px; color: var(--muted); font-size: 1.1rem; }
 .story-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 470px); gap: 64px; align-items: start; }
-.stage { order: 2; position: sticky; top: 96px; height: calc(100vh - 120px); min-height: 520px; border-radius: 32px; overflow: hidden; display: grid; place-items: center; isolation: isolate; }
-.stage-bg { position: absolute; inset: 0; z-index: -1; background: #14324d; transition: background-color .9s; }
-.story[data-s="2"] .stage-bg { background: color-mix(in srgb, var(--amber) 22%, var(--bg)); }
-.story[data-s="3"] .stage-bg { background: color-mix(in srgb, var(--amber) 36%, var(--bg)); }
-.story[data-s="4"] .stage-bg { background: var(--primary); }
-.story[data-s="5"] .stage-bg { background: color-mix(in srgb, #3B9AD9 24%, var(--bg)); }
-.story[data-s="6"] .stage-bg { background: var(--deep); }
-.story[data-s="7"] .stage-bg { background: color-mix(in srgb, var(--primary) 20%, var(--bg)); }
-.plane-fly { position: absolute; width: 38px; height: 38px; color: rgba(255,255,255,.75); top: 12%; left: -10%; opacity: 0; fill: rgba(255,255,255,.2); }
+.stage { order: 2; position: sticky; top: 96px; height: calc(100vh - 120px); min-height: 520px; overflow: hidden; display: grid; place-items: center; }
+.story[data-s="2"] .story[data-s="3"] .story[data-s="4"] .story[data-s="5"] .story[data-s="6"] .story[data-s="7"] .plane-fly { position: absolute; width: 38px; height: 38px; color: var(--primary); top: 12%; left: -10%; opacity: 0; fill: color-mix(in srgb, var(--primary) 20%, transparent); }
 .story[data-s="1"] .plane-fly { animation: fly 9s linear infinite; } .story:not([data-s="1"]) .plane-fly { display: none; }
 @keyframes fly { 0% { transform: translate(0, 60px) rotate(60deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translate(560px, -30px) rotate(60deg); opacity: 0; } }
 .phone.big { width: min(300px, 78%); aspect-ratio: 9 / 17; }
@@ -262,18 +255,15 @@ html.splash-on .hero { --base: 1.9s; }
 .ticks li { position: relative; padding-left: 32px; }
 .ticks li::before { content: ""; position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--soft); }
 .ticks li::after { content: ""; position: absolute; left: 4px; top: 7px; width: 12px; height: 12px; background: var(--primary); mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22m5 12.5 4.5 4.5L19 7.5%22 fill=%22none%22 stroke=%22black%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') center / contain no-repeat; -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22m5 12.5 4.5 4.5L19 7.5%22 fill=%22none%22 stroke=%22black%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') center / contain no-repeat; }
-.chapter.hot { background: var(--soft); color: var(--soft-ink); padding: 8vh 36px; border-radius: 28px; margin-inline: -36px; }
-.chapter.hot .num { color: var(--soft-ink); font-weight: 700; } .chapter.hot > p:not(.num) { color: color-mix(in srgb, var(--soft-ink) 82%, transparent); }
-.chapter.hot h3 { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--primary) 40%, transparent) 62% 92%, transparent 92%) no-repeat 0 0 / 0% 100%; display: inline; transition: background-size 1.2s .3s ease-out; box-decoration-break: clone; }
+.chapter.hot .num { display: inline-block; align-self: flex-start; padding: 4px 12px; border-radius: 99px; background: var(--soft); color: var(--soft-ink); font-weight: 700; font-style: normal; font-family: var(--sans); font-size: .8rem; }
+.chapter.hot h3 { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--primary) 40%, transparent) 62% 92%, transparent 92%) no-repeat 0 0 / 0% 100%; display: block; width: fit-content; max-width: 100%; transition: background-size 1.2s .3s ease-out; }
 .chapter.hot.on h3 { background-size: 100% 100%; }
-.chapter.hot .ticks li::before { background: var(--primary); } .chapter.hot .ticks li::after { background: var(--on-primary); }
 
 @media (max-width: 900px) {
   .story-grid { display: block; }
   .stage { position: sticky; top: 76px; height: 54vh; min-height: 0; z-index: 2; }
   .phone.big { width: auto; height: 86%; aspect-ratio: 9 / 18.5; }
   .chapter { min-height: 46vh; padding: 6vh 0 10vh; opacity: .5; background: var(--bg); position: relative; z-index: 1; }
-  .chapter.hot { margin-inline: 0; padding-inline: 20px; }
 }
 
 /* ───────── Bento ───────── */
