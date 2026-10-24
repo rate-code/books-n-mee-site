@@ -4,16 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Books n Mee</title>
-<meta name="description" content="Track every book you read: a reading timer that works offline, notes and highlights, reading series, goals, stats and a community of readers.">
+<meta name="description" content="A reading timer that works on a plane, notes and highlights, series built by readers, goals and a community of book lovers.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script>
-  // Before first paint, so a saved choice never flashes the other theme.
-  try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  // Before first paint: the saved theme, and whether the book-cover intro plays.
+  (function () {
+    var d = document.documentElement;
+    try { var t = localStorage.getItem('theme'); if (t) d.dataset.theme = t; } catch (e) {}
+    var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { if (!calm && !sessionStorage.getItem('seen')) d.classList.add('splash-on'); } catch (e) {}
+  })();
 </script>
 </head>
 <body>
@@ -41,224 +46,393 @@
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></symbol>
     <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 12v8h14v-8"/></symbol>
-    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.700l1-1"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M5 7V5h14v2M12 5v14m-3 0h6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M2 8.500a15 15 0 0 1 4-2.300M22 8.500a15 15 0 0 0-8-3.700M5 12.500a10 10 0 0 1 3-1.900M19 12.500a10 10 0 0 0-4-2.300M9 16.500a5 5 0 0 1 6 0M12 20h.01M3 3l18 18"/></symbol>
   </defs>
 </svg>
 
-<header class="top">
-  <a class="brand" href="#top"><img src="assets/icon.svg" alt="" width="28" height="28"><span>Books n Mee</span></a>
+<!-- Book-cover intro: plays once per visit -->
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="half l"></div><div class="half r"></div>
+  <img class="mark" src="assets/wordmark-rev.svg" alt="" width="172">
+</div>
+
+<header class="top" id="top-bar">
+  <a class="brand" href="#top"><img src="assets/icon.svg" alt="" width="30" height="30"><span>Books n Mee</span></a>
   <nav aria-label="Sections">
-    <a href="#how">How it works</a>
-    <a href="#features">Features</a>
-    <a href="#series">Series</a>
-    <a href="#screens">Screens</a>
-    <a href="#contact">Contact</a>
+    <a href="#story">The story</a>
+    <a href="#features">Everything inside</a>
+    <a href="#contact">Say hello</a>
   </nav>
   <button class="theme" id="theme" type="button" aria-label="Switch between light and dark theme">
     <svg class="ico sun"><use href="#i-sun"/></svg><svg class="ico moon"><use href="#i-moon"/></svg>
   </button>
+  <a class="btn primary sm" href="https://play.google.com/store/apps/details?id=com.ratecode.booknmee.booknmee">Get the app</a>
+  <i class="progress" aria-hidden="true"></i>
 </header>
 
 <main id="top">
 
+<!-- HERO -->
 <section class="hero">
+  <div class="floaters" aria-hidden="true">
+    <div class="bk b1"><span>Piranesi</span></div>
+    <div class="bk b2"><span>Dune</span></div>
+    <div class="bk b3"><span>Circe</span></div>
+    <div class="bk b4"><span>Middlemarch</span></div>
+  </div>
+
   <div class="hero-copy">
-    <h1>Every book you read, kept in one place.</h1>
-    <p class="lede">Time your reading, even on a plane. Save the lines you love. Follow a series in the right order. Set a goal and watch the year fill in.</p>
+    <h1 aria-label="Read like nobody is counting. Keep every page.">
+      <span class="ln"><span>Read like nobody</span></span>
+      <span class="ln"><span>is counting.</span></span>
+      <span class="ln mark-l"><span>Keep every page.</span></span>
+    </h1>
+    <p class="lede">Books n Mee is the reading tracker for people who love books: a timer that works on a plane, notes that stay with you, series built by other readers, and a place to talk about it all.</p>
     <div class="stores">
       <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.ratecode.booknmee.booknmee">Get it on Google Play</a>
       <span class="btn ghost" aria-disabled="true">App Store: coming soon</span>
     </div>
+    <p class="micro">Free to start. Works offline. Light and dark.</p>
   </div>
 
   <div class="hero-art" aria-hidden="true">
-    <div class="phone p-main">
+    <div class="phone hero-phone">
       <div class="screen">
-        <div class="bar"><span>Reading</span><span class="chip offline"><svg class="ico"><use href="#i-plane"/></svg>Offline</span></div>
-        <div class="cover-row">
-          <div class="cover c1"></div>
-          <div><b>Piranesi</b><small>Susanna Clarke</small></div>
-        </div>
-        <div class="clock">00:42:18</div>
-        <div class="muted center">Started on page 118</div>
+        <div class="bar"><span>Reading</span><span class="chip"><svg class="ico"><use href="#i-plane"/></svg>Airplane mode</span></div>
+        <div class="cover-row"><div class="cover c1"></div><div><b>Piranesi</b><small>Susanna Clarke</small></div></div>
+        <div class="clock" data-tick>00:42:18</div>
+        <div class="muted center">page <span data-pages>118</span></div>
+        <div class="prog mid"><i data-bar style="width:42%"></i></div>
         <div class="row-btns"><span class="round">Pause</span><span class="round fill">Stop and save</span></div>
-        <div class="note-line">Saved on this phone. It syncs when you land.</div>
+        <div class="note-line"><svg class="ico"><use href="#i-check"/></svg>Saved on this phone. Syncs when you land.</div>
       </div>
     </div>
-    <div class="phone p-share">
-      <div class="screen share-card">
-        <img src="assets/icon.svg" alt="" width="22" height="22">
-        <small>I just finished</small>
-        <div class="cover c2"></div>
-        <b>Middlemarch</b>
-        <small>George Eliot</small>
-        <div class="stars">★★★★★</div>
-        <div class="trio"><span><b>21 days</b>start to finish</span><span><b>14h 05m</b>reading time</span><span><b>880</b>pages</span></div>
+    <div class="pill p1"><svg class="ico"><use href="#i-mark"/></svg>Highlight saved</div>
+    <div class="pill p2"><svg class="ico"><use href="#i-flag"/></svg>17 of 24 books</div>
+    <div class="pill p3"><svg class="ico"><use href="#i-globe"/></svg>Book 2 of 7</div>
+  </div>
+</section>
+
+<!-- WHO IT IS FOR -->
+<div class="marquee" aria-label="When people use it">
+  <div class="track">
+    <span>On a long flight</span><span>On the metro</span><span>Waiting for a parcel</span><span>In a book club</span><span>Before sleep</span><span>For a reading challenge</span><span>While studying</span><span>On a rainy Sunday</span>
+    <span>On a long flight</span><span>On the metro</span><span>Waiting for a parcel</span><span>In a book club</span><span>Before sleep</span><span>For a reading challenge</span><span>While studying</span><span>On a rainy Sunday</span>
+  </div>
+</div>
+
+<!-- STORY -->
+<section class="story" id="story" data-s="1">
+  <div class="story-head">
+    <h2>One book, from the shop to the last page.</h2>
+    <p>Scroll. The phone follows the story.</p>
+  </div>
+
+  <div class="story-grid">
+    <div class="stage">
+      <div class="stage-bg"></div>
+      <svg class="plane-fly ico"><use href="#i-plane"/></svg>
+      <div class="phone big">
+        <div class="stack">
+
+          <!-- 1 · offline -->
+          <div class="screen scr" data-s="1">
+            <div class="bar"><span>Reading</span><span class="chip"><svg class="ico"><use href="#i-wifi-off"/></svg>No signal</span></div>
+            <div class="cover-row"><div class="cover c1"></div><div><b>Piranesi</b><small>Susanna Clarke</small></div></div>
+            <div class="clock" data-tick>00:00:00</div>
+            <div class="muted center">Pages <b class="inl" data-pages>118</b> to <b class="inl" data-pages2>118</b></div>
+            <div class="prog mid"><i data-bar style="width:30%"></i></div>
+            <div class="row-btns"><span class="round">Pause</span><span class="round fill">Stop and save</span></div>
+            <div class="note-line late"><svg class="ico"><use href="#i-check"/></svg>Session saved on this phone</div>
+            <div class="note-line late2"><svg class="ico"><use href="#i-down"/></svg>Will sync when you land</div>
+          </div>
+
+          <!-- 2 · add book -->
+          <div class="screen scr" data-s="2">
+            <div class="bar"><span>Add a book</span></div>
+            <div class="seg"><span><svg class="ico"><use href="#i-search"/></svg>Search</span><span><svg class="ico"><use href="#i-scan"/></svg>Scan</span><span class="on"><svg class="ico"><use href="#i-type"/></svg>Type it in</span></div>
+            <div class="field"><small>Title</small><div class="type t1"><b>The Hollow Orchard</b></div></div>
+            <div class="field"><small>Author</small><div class="type t2"><b>Mira Elden</b></div></div>
+            <div class="two"><div class="field"><small>Pages</small><div class="type t3"><b>312</b></div></div>
+            <div class="field"><small>Status</small><div class="chips s"><span class="on">Ordered</span></div></div></div>
+            <div class="switch-row"><div><b>Share with other readers</b><small>The next reader finds it in search</small></div><i class="sw on-late"></i></div>
+            <div class="btn-fake">Add to library</div>
+            <div class="note-line late"><svg class="ico"><use href="#i-bell"/></svg>We will remind you Friday if it has not arrived</div>
+          </div>
+
+          <!-- 3 · highlight -->
+          <div class="screen scr" data-s="3">
+            <div class="bar"><span>Page 214</span><span class="chip">Highlight</span></div>
+            <div class="paper">
+              <i></i><i></i><i class="hlbar"><u></u></i><i class="hlbar two"><u></u></i><i></i><i class="short"></i>
+            </div>
+            <div class="ncard hl late"><small>Highlight · page 214</small><q>We are not what we remember, but what we keep returning to.</q></div>
+            <div class="dots late"><i style="--c:#D9A21B" class="on"></i><i style="--c:#E0577A"></i><i style="--c:#2FA36B"></i><i style="--c:#3B9AD9"></i><i style="--c:#8B5CF6"></i></div>
+            <div class="ncard late2"><small>Your note</small><p>This is where the book turns. Reread the opening after.</p><div class="tags"><span>structure</span><span>reread</span></div></div>
+            <div class="switch-row late3"><div><b>Share to Explore</b><small>Readers can comment</small></div><i class="sw on-late"></i></div>
+          </div>
+
+          <!-- 4 · series -->
+          <div class="screen scr green" data-s="4">
+            <div class="bar"><span>Part of a series</span><span class="chip">Reader-built</span></div>
+            <div class="serie-title">The Broken Earth</div>
+            <small class="muted">Added by @asha · 214 readers</small>
+            <ol class="order">
+              <li class="o1 done"><i></i>The Fifth Season</li>
+              <li class="o2 now"><i></i>The Obelisk Gate<em>Book 2 of 3</em></li>
+              <li class="o3"><i></i>The Stone Sky</li>
+              <li class="o4 add"><i>+</i>Missing one? Add it</li>
+            </ol>
+            <div class="note-line late"><svg class="ico"><use href="#i-globe"/></svg>Every reader who finds this book sees this order.</div>
+          </div>
+
+          <!-- 5 · community -->
+          <div class="screen scr" data-s="5">
+            <div class="bar"><span>Explore</span></div>
+            <div class="search"><svg class="ico"><use href="#i-search"/></svg><span class="type t4"><b>@asha</b></span></div>
+            <div class="ex late"><div class="av">A</div><div><b>@asha</b><small>reading Middlemarch</small></div><span class="chip">Follow</span></div>
+            <div class="ncard late2"><p>"Dorothea's mistake is the most human thing in the book."</p><small><svg class="ico g"><use href="#i-chat"/></svg> <span data-count="6">6</span> comments</small></div>
+            <div class="cm late3"><div class="av b">R</div><div><b>@rohan</b><small>Reread chapter 29, it lands harder.</small></div></div>
+            <div class="switch-row late4"><div><b><svg class="ico g"><use href="#i-lock"/></svg> Private account</b><small>Only name and photo visible</small></div><i class="sw on-late"></i></div>
+            <div class="switch-row late4"><div><b><svg class="ico g"><use href="#i-block"/></svg> Blocked: 1</b><small>They are not told</small></div></div>
+          </div>
+
+          <!-- 6 · finish -->
+          <div class="screen scr share-scr" data-s="6">
+            <div class="confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="share-card pop">
+              <img src="assets/icon.svg" alt="" width="24" height="24">
+              <small>I just finished</small>
+              <div class="cover c2"></div>
+              <b>Middlemarch</b><small>George Eliot</small>
+              <div class="stars">★★★★★</div>
+              <div class="trio"><span><b>21 days</b>start to finish</span><span><b>14h 05m</b>reading time</span><span><b>880</b>pages</span></div>
+              <div class="cta-s">Track your reading with Books n Mee</div>
+            </div>
+            <div class="sheet late">
+              <small>Share to</small>
+              <div class="apps"><span style="--c:#E1306C">IG</span><span style="--c:#25D366">WA</span><span style="--c:#0A66C2">in</span><span style="--c:#6b7a70"><svg class="ico"><use href="#i-share"/></svg></span></div>
+            </div>
+          </div>
+
+          <!-- 7 · year -->
+          <div class="screen scr" data-s="7">
+            <div class="bar"><span>Your year</span></div>
+            <div class="bigstat"><b data-count="186">186</b><small>minutes this week</small></div>
+            <div class="bars"><i style="--h:30%"></i><i style="--h:55%"></i><i style="--h:20%"></i><i style="--h:80%"></i><i style="--h:65%"></i><i style="--h:100%"></i><i style="--h:45%"></i></div>
+            <div class="heat" data-heat></div>
+            <div class="goal"><b>24 books in 2026</b><div class="prog tall"><i style="width:71%"></i></div><small>17 of 24 · on track</small></div>
+            <div class="badges"><span class="late">First book</span><span class="late2">7-day streak</span><span class="late3">Night owl</span></div>
+          </div>
+
+        </div>
       </div>
+    </div>
+
+    <div class="chapters">
+
+      <article class="chapter" data-s="1">
+        <p class="num">Chapter 1</p>
+        <h3>At 35,000 feet.</h3>
+        <p>No Wi-Fi, no signal, no problem. Start the timer, read for as long as the flight lets you, and tap save. Your session is stored on the phone and syncs when you land. Notes and finishing a book work the same way.</p>
+        <ul class="ticks">
+          <li>The timer keeps counting with the screen off.</li>
+          <li>Reading reminders are set on your phone, so they still fire in the air.</li>
+          <li>Nothing says "something went wrong" when you are offline.</li>
+        </ul>
+      </article>
+
+      <article class="chapter" data-s="2">
+        <p class="num">Chapter 2</p>
+        <h3>Add it your way.</h3>
+        <p>Search the catalogue, scan the barcode, or type the book in by hand. If it is a book nobody has listed yet, share it with other readers and the next person finds it in search.</p>
+        <ul class="ticks">
+          <li>Ordered it online? Add the order date and the expected day. We remind you if it has not shown up.</li>
+          <li>Wishlist, planned, ordered, received, reading, paused, finished. One shelf, filtered by status, ownership and format.</li>
+          <li>Export your whole library whenever you like.</li>
+        </ul>
+      </article>
+
+      <article class="chapter" data-s="3">
+        <p class="num">Chapter 3</p>
+        <h3>Keep the line.</h3>
+        <p>Highlight a line in one of five colours, write a note against the page or chapter, add tags, even photograph the page. Mark your favourites, and publish any note to Explore when you want other readers to see it.</p>
+        <ul class="ticks">
+          <li>Notes and highlights in one timeline, per book or across all of them.</li>
+          <li>Export every note when you want them elsewhere.</li>
+        </ul>
+      </article>
+
+      <article class="chapter hot" data-s="4">
+        <p class="num">Chapter 4 · built by readers</p>
+        <h3>Which one comes first?</h3>
+        <p>Series are hard to untangle. Here, any reader can add a book to a series and put the books in order, and everyone who finds that book sees the whole list. "Book 2 of 3" appears on your book without any work from you.</p>
+        <ul class="ticks">
+          <li>Start a series from any book on your shelf.</li>
+          <li>Add the others by search, or type them in.</li>
+          <li>The more readers add, the better every series gets.</li>
+        </ul>
+      </article>
+
+      <article class="chapter" data-s="5">
+        <p class="num">Chapter 5</p>
+        <h3>Other readers, one tap away.</h3>
+        <p>Search any reader by username, open their profile and see what they are reading and what they finished. Comment on notes and reviews to give feedback, and build your own profile with your genres and a year of reading.</p>
+        <ul class="ticks">
+          <li>One switch makes your account private. Only your name and photo stay visible.</li>
+          <li>Block anyone. They cannot open your profile or comment, and they are not told.</li>
+        </ul>
+      </article>
+
+      <article class="chapter" data-s="6">
+        <p class="num">Chapter 6</p>
+        <h3>The last page.</h3>
+        <p>Finish a book and Books n Mee celebrates, then turns it into a story-sized card: the cover, how many days it took, your reading time, pages and rating. Send it to Instagram, WhatsApp, LinkedIn, or anyone.</p>
+        <ul class="ticks">
+          <li>Rate it and write a review that stays private or goes on your profile.</li>
+          <li>Share from the dialog, or later from the finished book.</li>
+        </ul>
+      </article>
+
+      <article class="chapter" data-s="7">
+        <p class="num">Chapter 7</p>
+        <h3>Your year, at a glance.</h3>
+        <p>A month tracker shows the days you read, stats show minutes and pages, and a year view shows how much you read in total. Set a goal in books, pages or minutes and earn badges for streaks along the way.</p>
+        <ul class="ticks">
+          <li>Light and dark themes, warm paper by day and forest green by night.</li>
+        </ul>
+      </article>
+
     </div>
   </div>
 </section>
 
-<section class="how" id="how">
-  <h2>Three steps, then repeat.</h2>
-  <ol>
-    <li><h3>Add a book</h3><p>Search by title, scan the barcode or type it in. Mark it as wishlist, ordered or already on your shelf.</p></li>
-    <li><h3>Read with the timer</h3><p>Start the timer when you sit down. Add notes and highlights as you go. Everything saves, with or without a signal.</p></li>
-    <li><h3>Finish and share</h3><p>Rate it, review it, and turn the finish into a card for Instagram, WhatsApp or LinkedIn.</p></li>
-  </ol>
-</section>
-
+<!-- BENTO -->
 <section class="features" id="features">
-  <h2>What it does</h2>
-
-  <div class="group">
-    <div class="group-head"><h3>Read</h3><p>A timer that keeps up with how you really read.</p></div>
-    <ul>
-      <li><svg class="ico"><use href="#i-timer"/></svg><div><b>Reading timer</b><span>Runs in the background with a sticky notification, so it keeps counting when the screen is off.</span></div></li>
-      <li><svg class="ico"><use href="#i-plane"/></svg><div><b>Works offline, even on a plane</b><span>Save sessions, add notes and finish books with no internet. Books n Mee syncs when you reconnect.</span></div></li>
-      <li><svg class="ico"><use href="#i-bell"/></svg><div><b>Reading reminders</b><span>A nudge at the time you choose. Set on your phone, so they work without a connection.</span></div></li>
-    </ul>
+  <div class="sec-head">
+    <h2>Everything inside, in one glance.</h2>
+    <p>Each tile moves when you reach it.</p>
   </div>
 
-  <div class="group">
-    <div class="group-head"><h3>Remember</h3><p>Keep what a book gave you.</p></div>
-    <ul>
-      <li><svg class="ico"><use href="#i-pen"/></svg><div><b>Notes</b><span>Write a thought against a page or chapter, add tags and a photo of the page.</span></div></li>
-      <li><svg class="ico"><use href="#i-mark"/></svg><div><b>Highlights</b><span>Save a line in five colours and find it again by book, tag or favourite.</span></div></li>
-      <li><svg class="ico"><use href="#i-down"/></svg><div><b>Export your notes</b><span>Your words are yours. Take them out whenever you like.</span></div></li>
-    </ul>
-  </div>
+  <div class="bento">
 
-  <div class="group">
-    <div class="group-head"><h3>Organise</h3><p>Your shelf, and the books on their way to it.</p></div>
-    <ul>
-      <li><svg class="ico"><use href="#i-shelf"/></svg><div><b>Library with filters</b><span>Filter by status, whether you own it, and format. Wishlist, reading, paused, finished.</span></div></li>
-      <li><svg class="ico"><use href="#i-box"/></svg><div><b>Track books you ordered</b><span>Note the order date and the expected day, and get reminded when it should arrive.</span></div></li>
-      <li><svg class="ico"><use href="#i-down"/></svg><div><b>Export your library</b><span>One file with every book you track.</span></div></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <div class="group-head"><h3>Progress</h3><p>See the habit, not just the pile.</p></div>
-    <ul>
-      <li><svg class="ico"><use href="#i-cal"/></svg><div><b>Month tracker</b><span>A calendar of the days you read, darker for longer sessions.</span></div></li>
-      <li><svg class="ico"><use href="#i-chart"/></svg><div><b>Stats page</b><span>Minutes, pages and sessions by day, week and month. Track how much you read across a full year.</span></div></li>
-      <li><svg class="ico"><use href="#i-flag"/></svg><div><b>Goals</b><span>Set a target in books, pages or minutes, and see how close you are.</span></div></li>
-      <li><svg class="ico"><use href="#i-trophy"/></svg><div><b>Achievements</b><span>Streaks, first book, night owl, early bird and more.</span></div></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <div class="group-head"><h3>Community</h3><p>Reading is better with other readers.</p></div>
-    <ul>
-      <li><svg class="ico"><use href="#i-globe"/></svg><div><b>Share notes publicly</b><span>Publish a note to Explore. Other readers can comment on it.</span></div></li>
-      <li><svg class="ico"><use href="#i-search"/></svg><div><b>Search by username</b><span>Find a reader, open their profile and see what they have read.</span></div></li>
-      <li><svg class="ico"><use href="#i-user"/></svg><div><b>Build your profile</b><span>Photo, username, favourite genres, finished books and a year of reading.</span></div></li>
-      <li><svg class="ico"><use href="#i-chat"/></svg><div><b>Give feedback</b><span>Comment on other readers' notes and reviews.</span></div></li>
-      <li><svg class="ico"><use href="#i-lock"/></svg><div><b>Private profile</b><span>One switch hides your stats, shelf and notes. Only your name and photo stay visible.</span></div></li>
-      <li><svg class="ico"><use href="#i-block"/></svg><div><b>Block accounts</b><span>Blocked readers cannot open your profile or comment. They are not told.</span></div></li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <div class="group-head"><h3>Share</h3><p>Finish a book, show it off.</p></div>
-    <ul>
-      <li><svg class="ico"><use href="#i-share"/></svg><div><b>Finished-book card</b><span>A story-sized image with the cover, days taken, reading time, pages and your rating. Send it anywhere from the share menu.</span></div></li>
-      <li><svg class="ico"><use href="#i-moon"/></svg><div><b>Light and dark themes</b><span>Warm paper by day, near-black forest green by night. Follows your phone or your choice.</span></div></li>
-    </ul>
-  </div>
-</section>
-
-<section class="series" id="series">
-  <div class="series-copy">
-    <h2>Reading orders, built by readers.</h2>
-    <p>Which book comes first? Series are surprisingly hard to untangle. In Books n Mee, any reader can add a book to a series and put the books in order. Everyone who finds that book sees the whole series.</p>
-    <ul>
-      <li>Start a series from any book you own.</li>
-      <li>Add the other books by search, or type them in.</li>
-      <li>Other readers see "Book 2 of 7" on theirs, with no work on their side.</li>
-    </ul>
-    <p class="strong">The more readers add, the better every series gets.</p>
-  </div>
-  <div class="phone series-phone" aria-hidden="true">
-    <div class="screen">
-      <div class="bar"><span>Part of a series</span></div>
-      <div class="serie-title">The Broken Earth</div>
-      <small class="muted">Book 2 of 3 · added by readers</small>
-      <ol class="order">
-        <li class="done"><i></i>The Fifth Season</li>
-        <li class="now"><i></i>The Obelisk Gate<em>You are here</em></li>
-        <li><i></i>The Stone Sky</li>
-      </ol>
-      <div class="note-line">Missing a book? Add it, and every reader sees it.</div>
+    <div class="tile w3">
+      <h3>Reading timer</h3>
+      <p>Runs in the background with a notification you cannot swipe away by accident.</p>
+      <div class="viz v-timer"><b data-tick2>00:25:41</b><span class="notif"><svg class="ico"><use href="#i-timer"/></svg>Reading Piranesi · running</span></div>
     </div>
+
+    <div class="tile w3 sky">
+      <h3>Offline, even on a plane</h3>
+      <p>Save sessions, add notes, finish books. Everything syncs when you reconnect.</p>
+      <div class="viz v-plane"><svg class="ico fly"><use href="#i-plane"/></svg><i class="path"></i><span>Syncs on landing</span></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Reminders</h3>
+      <p>A nudge at the hour you pick. Also when a parcel should arrive.</p>
+      <div class="viz v-bell"><svg class="ico ring"><use href="#i-bell"/></svg><span>9:00 pm · Read 20 minutes</span></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Notes and highlights</h3>
+      <p>Five colours, tags, favourites and a photo of the page.</p>
+      <div class="viz v-colors"><i style="--c:#D9A21B"></i><i style="--c:#E0577A"></i><i style="--c:#2FA36B"></i><i style="--c:#3B9AD9"></i><i style="--c:#8B5CF6"></i></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Export it all</h3>
+      <p>Your notes and your library are yours. Take them out any time.</p>
+      <div class="viz v-export"><span><svg class="ico"><use href="#i-down"/></svg>Notes</span><span><svg class="ico"><use href="#i-down"/></svg>Library</span></div>
+    </div>
+
+    <div class="tile w3">
+      <h3>Library with filters</h3>
+      <p>Filter by status, ownership and format, and see the shelf change.</p>
+      <div class="viz v-filter">
+        <div class="chips"><span class="f1">Reading</span><span class="f2">Ordered</span><span class="f3">Finished</span></div>
+        <ul><li class="r1">Piranesi</li><li class="r2">The Hollow Orchard</li><li class="r3">Middlemarch</li></ul>
+      </div>
+    </div>
+
+    <div class="tile w3">
+      <h3>Track what you ordered</h3>
+      <p>From wishlist to your hands, with a reminder if it runs late.</p>
+      <div class="viz v-order"><div class="line"><i></i></div><div class="steps"><span>Wishlist</span><span>Ordered</span><span>Received</span></div></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Month tracker</h3>
+      <p>Darker days are longer reads.</p>
+      <div class="viz"><div class="heat sm" data-heat></div></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Stats and your year</h3>
+      <p>Minutes, pages and sessions, up to a full year of reading.</p>
+      <div class="viz"><div class="bars lg"><i style="--h:35%"></i><i style="--h:60%"></i><i style="--h:42%"></i><i style="--h:85%"></i><i style="--h:55%"></i><i style="--h:100%"></i><i style="--h:70%"></i></div></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Goals and badges</h3>
+      <p>Books, pages or minutes. Streaks earn badges.</p>
+      <div class="viz v-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="bg"/><circle cx="18" cy="18" r="15" class="fg"/></svg><b data-count="71" data-suffix="%">71%</b></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Your profile</h3>
+      <p>Photo, username, favourite genres and finished books.</p>
+      <div class="viz v-prof"><div class="av">S</div><div><b>@you</b><small>Fantasy · Classics · Essays</small></div></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Search by username</h3>
+      <p>Find a reader, open their shelf, read their notes.</p>
+      <div class="viz v-search"><div class="search"><svg class="ico"><use href="#i-search"/></svg><span class="type t4"><b>@asha</b></span></div></div>
+    </div>
+
+    <div class="tile w2">
+      <h3>Private and blocking</h3>
+      <p>Hide your reading with one switch. Block anyone, quietly.</p>
+      <div class="viz v-priv"><span class="swbig"><i></i></span><svg class="ico"><use href="#i-lock"/></svg></div>
+    </div>
+
+    <div class="tile w3">
+      <h3>Share to the community</h3>
+      <p>Publish notes to Explore, add series, add books other readers can find, and give feedback on theirs.</p>
+      <div class="viz v-comm"><div class="av">A</div><div class="bub b1">Loved this line.</div><div class="bub b2">Reread chapter 29!</div><div class="bub b3">Adding book 3 now.</div></div>
+    </div>
+
+    <div class="tile w3 themes">
+      <h3>Light and dark</h3>
+      <p>Warm paper by day. Near-black forest green by night. Press the sun or moon at the top.</p>
+      <div class="viz v-theme"><div class="half-l"></div><div class="half-d"></div></div>
+    </div>
+
   </div>
 </section>
 
-<section class="gallery" id="screens">
-  <h2>A look inside</h2>
-  <div class="rail">
-
-    <figure>
-      <div class="phone"><div class="screen">
-        <div class="bar"><span>Library</span></div>
-        <div class="chips"><span class="on">Reading</span><span>Ordered</span><span>Finished</span></div>
-        <div class="lrow"><div class="cover c1"></div><div><b>Piranesi</b><small>Susanna Clarke</small><div class="prog"><i style="width:62%"></i></div></div></div>
-        <div class="lrow"><div class="cover c3"></div><div><b>Dune</b><small>Frank Herbert</small><div class="prog"><i style="width:18%"></i></div></div></div>
-        <div class="lrow"><div class="cover c4"></div><div><b>Circe</b><small>Madeline Miller</small><span class="status ord">Ordered · due Friday</span></div></div>
-      </div></div>
-      <figcaption>Library with filters, and books on order</figcaption>
-    </figure>
-
-    <figure>
-      <div class="phone"><div class="screen">
-        <div class="bar"><span>Notes</span></div>
-        <div class="ncard hl"><small>Highlight · page 214</small><q>We are not what we remember, but we are what we keep returning to.</q></div>
-        <div class="ncard"><small>Note · page 231 <svg class="ico g"><use href="#i-globe"/></svg> Shared</small><p>This chapter is where the whole book turns. Reread the opening after.</p><div class="tags"><span>structure</span><span>reread</span></div></div>
-        <div class="ncard"><small>Note · page 240</small><p>Compare with the earlier ending.</p></div>
-      </div></div>
-      <figcaption>Notes and highlights, shared if you want</figcaption>
-    </figure>
-
-    <figure>
-      <div class="phone"><div class="screen">
-        <div class="bar"><span>Stats</span></div>
-        <div class="big"><b>186</b><small>minutes this week</small></div>
-        <div class="bars"><i style="height:30%"></i><i style="height:55%"></i><i style="height:20%"></i><i style="height:80%"></i><i style="height:65%"></i><i style="height:100%"></i><i style="height:45%"></i></div>
-        <small class="muted">October</small>
-        <div class="heat" id="heat"></div>
-      </div></div>
-      <figcaption>Stats and the month tracker</figcaption>
-    </figure>
-
-    <figure>
-      <div class="phone"><div class="screen">
-        <div class="bar"><span>Goals</span></div>
-        <div class="goal"><b>24 books in 2026</b><div class="prog tall"><i style="width:71%"></i></div><small>17 of 24 · on track</small></div>
-        <div class="goal"><b>30 minutes a day</b><div class="prog tall"><i style="width:90%"></i></div><small>27 days this month</small></div>
-        <div class="badges"><span>First book</span><span>7-day streak</span><span>Night owl</span></div>
-      </div></div>
-      <figcaption>Goals and achievements</figcaption>
-    </figure>
-
-    <figure>
-      <div class="phone"><div class="screen">
-        <div class="bar"><span>Explore</span></div>
-        <div class="search"><svg class="ico"><use href="#i-search"/></svg>Search readers by username</div>
-        <div class="ex"><div class="av">A</div><div><b>@asha</b><small>reading Middlemarch</small></div></div>
-        <div class="ncard"><p>"Dorothea's mistake is the most human thing in the book."</p><small><svg class="ico g"><use href="#i-chat"/></svg> 6 comments</small></div>
-        <div class="ex"><div class="av b">R</div><div><b>@rohan</b><small class="muted">Private account</small></div><svg class="ico g"><use href="#i-lock"/></svg></div>
-      </div></div>
-      <figcaption>Explore, search and private profiles</figcaption>
-    </figure>
-
+<!-- CLOSER -->
+<section class="closer">
+  <div class="floaters" aria-hidden="true">
+    <div class="bk b1"><span>Circe</span></div><div class="bk b2"><span>Dune</span></div><div class="bk b3"><span>Piranesi</span></div>
+  </div>
+  <h2>Your next chapter is already on the shelf.</h2>
+  <p>Add the book you are reading and start the timer.</p>
+  <div class="stores center-s">
+    <a class="btn primary big-b" href="https://play.google.com/store/apps/details?id=com.ratecode.booknmee.booknmee">Get it on Google Play</a>
+    <span class="btn ghost" aria-disabled="true">App Store: coming soon</span>
   </div>
 </section>
 
+<!-- CONTACT -->
 <section class="contact" id="contact">
   <div>
     <h2>Questions, ideas, or something broken?</h2>
-    <p>Write to the person who builds it. Every message gets read. The form opens your email app with the message filled in, so you can send it from your own address.</p>
+    <p>Write to the person who builds it. Every message gets read. The form opens your email app with the message filled in, so you send it from your own address.</p>
   </div>
   <form id="form" novalidate>
     <label>Your name<input name="name" autocomplete="name" required></label>
