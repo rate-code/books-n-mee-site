@@ -122,8 +122,10 @@ const tio = new IntersectionObserver((entries) => entries.forEach((e) => {
 }), { threshold: 0.25 });
 tiles.forEach((t) => tio.observe(t));
 
-/* Contact form: sent by FormSubmit, which relays it to the inbox. */
-const EMAIL = 'rate.code.115@gmail.com';
+/* Contact form: sent by Web3Forms, which emails it to the inbox. The key is
+   meant to be public; it can only send messages, and the address it sends to
+   is stored on their side. */
+const ACCESS_KEY = '365ed291-cee1-4926-8392-424049641167';
 const form = $('#form');
 const hint = $('#hint');
 const say = (text, cls = '') => { hint.textContent = text; hint.className = 'hint ' + cls; };
@@ -138,25 +140,25 @@ form.addEventListener('submit', async (event) => {
   button.disabled = true;
   say('Sending...');
   try {
-    const res = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
+    const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
+        access_key: ACCESS_KEY,
+        subject: `Books n Mee: ${data.get('kind')} from ${name}`,
+        from_name: 'Books n Mee site',
         name,
         topic: data.get('kind'),
         message,
-        _honey: data.get('_honey'),
-        _subject: `Books n Mee: ${data.get('kind')} from ${name}`,
-        _template: 'table',
-        _captcha: 'false',
+        botcheck: data.get('botcheck') || '',
       }),
     });
     const body = await res.json();
-    if (!res.ok || body.success === 'false') throw new Error(body.message || res.status);
+    if (!res.ok || !body.success) throw new Error(body.message || res.status);
     form.reset();
     say('Thanks, your message is sent. Every message gets read.', 'ok');
   } catch (error) {
-    say(`That did not send. Please write to ${EMAIL} instead.`, 'err');
+    say('That did not send. Please try again in a moment.', 'err');
   } finally {
     button.disabled = false;
   }
