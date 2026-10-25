@@ -127,6 +127,12 @@ tiles.forEach((t) => tio.observe(t));
    is stored on their side. */
 const ACCESS_KEY = '365ed291-cee1-4926-8392-424049641167';
 const form = $('#form');
+// hCaptcha comes from Web3Forms' own script, loaded after the box is themed.
+$('#captcha').dataset.theme = dark() ? 'dark' : 'light';
+const captchaScript = document.createElement('script');
+captchaScript.src = 'https://web3forms.com/client/script.js';
+captchaScript.async = true;
+document.body.append(captchaScript);
 const hint = $('#hint');
 const say = (text, cls = '') => { hint.textContent = text; hint.className = 'hint ' + cls; };
 form.addEventListener('submit', async (event) => {
@@ -135,6 +141,8 @@ form.addEventListener('submit', async (event) => {
   const name = String(data.get('name')).trim();
   const message = String(data.get('message')).trim();
   if (!name || !message) return say('Add your name and a message, then try again.', 'err');
+  const captcha = String(data.get('h-captcha-response') || '');
+  if (!captcha) return say('Tick the box to show you are a person.', 'err');
 
   const button = $('button[type="submit"]', form);
   button.disabled = true;
@@ -151,11 +159,13 @@ form.addEventListener('submit', async (event) => {
         topic: data.get('kind'),
         message,
         botcheck: data.get('botcheck') || '',
+        'h-captcha-response': captcha,
       }),
     });
     const body = await res.json();
     if (!res.ok || !body.success) throw new Error(body.message || res.status);
     form.reset();
+    if (window.hcaptcha) window.hcaptcha.reset();
     say('Thanks, your message is sent. Every message gets read.', 'ok');
   } catch (error) {
     say('That did not send. Please try again in a moment.', 'err');
