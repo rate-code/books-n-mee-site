@@ -329,7 +329,10 @@ html.splash-on .hero { --base: 1.9s; }
 form { display: grid; gap: 16px; } label { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; }
 input, select, textarea { font: 400 1rem var(--sans); color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px; width: 100%; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 1px; border-color: var(--primary); }
-form .btn { justify-self: start; } .hint { color: var(--muted); font-size: .88rem; } .hint.err { color: #BA1A1A; } :root[data-theme="dark"] .hint.err { color: #FFB4AB; }
+form .btn { justify-self: start; }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.hint.ok { color: var(--primary); font-weight: 600; }
+form .btn[disabled] { opacity: .6; cursor: wait; } .hint { color: var(--muted); font-size: .88rem; } .hint.err { color: #BA1A1A; } :root[data-theme="dark"] .hint.err { color: #FFB4AB; }
 @media (max-width: 800px) { .contact { grid-template-columns: 1fr; gap: 28px; } }
 footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 28px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; max-width: 1080px; margin-inline: auto; }
 

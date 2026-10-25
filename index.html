@@ -431,9 +431,10 @@
 <section class="contact" id="contact">
   <div>
     <h2>Questions, ideas, or something broken?</h2>
-    <p>Write to the person who builds it. Every message gets read. The form opens your email app with the message filled in, so you send it from your own address.</p>
+    <p>Write to the person who builds it. Every message gets read. Leave an email in the message if you would like a reply.</p>
   </div>
   <form id="form" novalidate>
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="trap">
     <label>Your name<input name="name" autocomplete="name" required></label>
     <label>What is it about?
       <select name="kind">
@@ -444,8 +445,8 @@
       </select>
     </label>
     <label>Message<textarea name="message" rows="5" required></textarea></label>
-    <button class="btn primary" type="submit">Write the email</button>
-    <p class="hint" id="hint" role="status">Or write straight to <a href="mailto:rate.code.115@gmail.com">rate.code.115@gmail.com</a>.</p>
+    <button class="btn primary" type="submit">Send message</button>
+    <p class="hint" id="hint" role="status"></p>
   </form>
 </section>
 

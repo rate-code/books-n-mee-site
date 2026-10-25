@@ -122,21 +122,42 @@ const tio = new IntersectionObserver((entries) => entries.forEach((e) => {
 }), { threshold: 0.25 });
 tiles.forEach((t) => tio.observe(t));
 
-/* No server: the form opens the visitor's own mail app, pre-filled. */
+/* Contact form: sent by FormSubmit, which relays it to the inbox. */
 const EMAIL = 'rate.code.115@gmail.com';
+const form = $('#form');
 const hint = $('#hint');
-$('#form').addEventListener('submit', (event) => {
+const say = (text, cls = '') => { hint.textContent = text; hint.className = 'hint ' + cls; };
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const data = new FormData(event.target);
+  const data = new FormData(form);
   const name = String(data.get('name')).trim();
   const message = String(data.get('message')).trim();
-  if (!name || !message) {
-    hint.textContent = 'Add your name and a message, then try again.';
-    hint.classList.add('err');
-    return;
+  if (!name || !message) return say('Add your name and a message, then try again.', 'err');
+
+  const button = $('button[type="submit"]', form);
+  button.disabled = true;
+  say('Sending...');
+  try {
+    const res = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        name,
+        topic: data.get('kind'),
+        message,
+        _honey: data.get('_honey'),
+        _subject: `Books n Mee: ${data.get('kind')} from ${name}`,
+        _template: 'table',
+        _captcha: 'false',
+      }),
+    });
+    const body = await res.json();
+    if (!res.ok || body.success === 'false') throw new Error(body.message || res.status);
+    form.reset();
+    say('Thanks, your message is sent. Every message gets read.', 'ok');
+  } catch (error) {
+    say(`That did not send. Please write to ${EMAIL} instead.`, 'err');
+  } finally {
+    button.disabled = false;
   }
-  hint.classList.remove('err');
-  const subject = `Books n Mee: ${data.get('kind')}`;
-  location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`${message}\n\n${name}`)}`;
-  hint.textContent = 'Your email app should open with the message ready to send.';
 });
