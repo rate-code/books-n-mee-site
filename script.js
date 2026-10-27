@@ -101,6 +101,18 @@ function show(n) {
 }
 show(1);
 const narrow = matchMedia('(max-width: 900px)').matches;
+
+/* On a phone the story's phone keeps its desktop size and is scaled down to
+   fit the stage, rather than squeezed, which cropped its screens. */
+const stage = $('.stage', story);
+const bigPhone = $('.phone.big', story);
+const fitPhone = () => {
+  bigPhone.style.scale = matchMedia('(max-width: 900px)').matches
+    ? Math.min(1, (stage.clientHeight - 16) / bigPhone.offsetHeight).toFixed(3)
+    : '';
+};
+addEventListener('resize', fitPhone);
+fitPhone();
 const io = new IntersectionObserver(
   (entries) => entries.forEach((e) => { if (e.isIntersecting) show(e.target.dataset.s); }),
   { rootMargin: narrow ? '-62% 0px -8% 0px' : '-45% 0px -45% 0px' },
